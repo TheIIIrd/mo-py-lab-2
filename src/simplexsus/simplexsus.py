@@ -250,7 +250,7 @@ def to_dual_task(c, A, b, minimize):
     return new_c, new_A, new_b, not minimize
 
 
-def simplexsus(minimize, c, A, b, f):
+def simplexsus(c, A, b, f, minimize):
     """
     Основная функция симплекс-метода. Выполняет проверку входных данных
     и находит решение.

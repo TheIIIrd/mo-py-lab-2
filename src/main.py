@@ -15,7 +15,7 @@ def main():
     f = 0
 
     c, A, b, minimize = to_dual_task(c, A, b, minimize)
-    print("[ + ] Ans:", simplexsus(minimize, c, A, b, f))
+    print("[ + ] Ans:", simplexsus(c, A, b, f, minimize))
 
     return 0
 
