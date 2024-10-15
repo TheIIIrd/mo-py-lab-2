@@ -292,7 +292,7 @@ def simplexsus(c, A, b, f, minimize):
 
     if minimize:
         print("[ * ] The function goes to the minimum")
-        return f
+        return round(f, 2)
 
     print("[ * ] The function goes to the maximum")
-    return f * -1
+    return round(f * -1, 2)
