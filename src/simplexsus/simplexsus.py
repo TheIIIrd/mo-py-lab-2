@@ -71,7 +71,13 @@ def create_simplex_table(c, A, b, f):
     return table
 
 
-def print_simplex_table(simplex_table):
+def create_simplex_variables(A):
+    var_col = ["b"] + [f"x{i+1}" for i in range(len(A[0]))]
+    var_row = [f"x{i+1+len(var_col)}" for i in range(len(A))] + ["F "]
+    return var_row, var_col
+
+
+def print_simplex_table(simplex_table, var_row, var_col):
     """
     Выводит симплекс-таблицу в терминал с заголовками.
     """
@@ -82,11 +88,13 @@ def print_simplex_table(simplex_table):
     max_width = 6
 
     # Выводим заголовки
-    headers = ["b"] + [f"x{i+1}" for i in range(len(simplex_table[0]) - 1)]
-    print(" | ".join(f"{header:>{max_width}}" for header in headers))
-    print("-" * (max_width * len(headers) + 3 * (len(headers) - 1)))
+    headers = [var_col[i] for i in range(len(simplex_table[0]))]
+    print("    ", " | ".join(f"{header:>{max_width}}" for header in headers))
+    print("----", "-" * (max_width * len(headers) + 4 * (len(headers) - 1)), sep="")
 
     for i in range(len(simplex_table)):
+        print(var_row[i], end=" | ")
+
         for j in simplex_table[i]:
             # Выравнивание по правому краю, 2 знака после запятой
             if j == 0:
@@ -153,6 +161,11 @@ def find_min_ratio(A, b, min_ratio_col):
         raise ValueError("[ ! ] Нет допустимого разрешающего элемента.")
 
     return [A[min_ratio_row][min_ratio_col], min_ratio_row, min_ratio_col]
+
+
+def swap_variables(var_row, var_col, simplex_resolve):
+    var_row[simplex_resolve[1]], var_col[simplex_resolve[2] + 1] = var_col[simplex_resolve[2] + 1], var_row[simplex_resolve[1]]
+    return var_row, var_col
 
 
 def simplex_table_iteration(c, A, b, f, simplex_resolve):
@@ -266,10 +279,12 @@ def simplexsus(c, A, b, f, minimize):
         if minimize:
             for i in range(len(c)):
                 c[i] *= -1
+        
+        var_row, var_col = create_simplex_variables(A)  # Создание обозначений симплекс-таблицы
 
         while (max(c) > 0) or (min(b) < 0):
-            simplex_table = create_simplex_table(c, A, b, f)    # Создание симплекс-таблицы
-            print_simplex_table(simplex_table)                  # Вывод симплекс-таблицы
+            simplex_table = create_simplex_table(c, A, b, f)        # Создание симплекс-таблицы
+            print_simplex_table(simplex_table, var_row, var_col)    # Вывод симплекс-таблицы
 
             simplex_resolve = find_simplex_resolve(c, A, b)  # Поиск и выбор разрешающего элемента
 
@@ -281,14 +296,15 @@ def simplexsus(c, A, b, f, minimize):
                 print("[ - ] Infinite number of solutions")
                 return 1
 
-            print("[ * ] The resolving element is found:", simplex_resolve)
+            print("[ * ] The resolving element is found:", round(simplex_resolve[0], 2), simplex_resolve[1:])
 
+            var_row, var_col = swap_variables(var_row, var_col, simplex_resolve)
             c, A, b, f = simplex_table_iteration(c, A, b, f, simplex_resolve)
 
         # Найдено оптимальное решение
         print("\n[ + ] OPTI ANS")
         simplex_table = create_simplex_table(c, A, b, f)    # Создание симплекс-таблицы
-        print_simplex_table(simplex_table)                  # Вывод симплекс-таблицы
+        print_simplex_table(simplex_table, var_row, var_col)                  # Вывод симплекс-таблицы
 
     else:
         print("[ - ] Check: BAD")
